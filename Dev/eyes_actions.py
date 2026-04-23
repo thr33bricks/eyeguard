@@ -3,6 +3,7 @@ import settings
 
 
 blinks_counter = 0
+inf_blinks_counter = 0
 
 left_eye_state = "unknown"
 right_eye_state = "unknown"
@@ -59,9 +60,12 @@ def update_total_state():
         total_state = "closed"
 
 def update_blinks():
-    global blinks_counter
+    global blinks_counter, inf_blinks_counter
     if total_state == "open" and last_total_state == "closed":
         blinks_counter += 1
+
+        if not settings.USE_WEBCAM:
+            inf_blinks_counter += 1
 
 def update_eye_distance():
     global eye_distance
@@ -108,7 +112,8 @@ def update_screen_distance():
 
 def print_info():
      if settings.PRINT_EYE_ACTION_INFO:
-        eyes_utils.print_verbose(f"Blinks count: {blinks_counter} | Screen distance: {screen_distance:.2f} cm | Squinting: {squinting}")
+        bl_cnt = blinks_counter if settings.USE_WEBCAM else inf_blinks_counter
+        eyes_utils.print_verbose(f"Blinks count: {bl_cnt} | Screen distance: {screen_distance:.2f} cm | Squinting: {squinting}")
 
 def update():
     update_eyes_states()

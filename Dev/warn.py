@@ -62,7 +62,7 @@ def process_second():
         second.valid = True
         second.blinks = blinks_count
         second.screen_distance = distance_sum / valid_frames
-        second.squinting = (squinting_count / valid_frames > settings.SECOND_SQUINTING_THRESHOLD)
+        second.squinting = (squinting_count / valid_frames > settings.WARN_SQUINTING_THRESHOLD)
     add_second(second)
 
     calculate_averages()
