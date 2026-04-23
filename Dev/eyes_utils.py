@@ -29,6 +29,7 @@ landmark_coords = []
 # EAR values
 left_ear = 0.0
 right_ear = 0.0
+avg_ear = 0.0
 min_ear = 0.0
 
 # Eye states
@@ -36,6 +37,9 @@ left_eye_state = "unknown"
 right_eye_state = "unknown"
 left_eye_new_state = False
 right_eye_new_state = False
+
+#
+face = False
 
 def print_verbose(*args):
     if settings.PRINT_VERBOSE:
@@ -54,11 +58,11 @@ def ear(eye_points):
     return (get_vertical_distance(eye_points)) / h
 
 def calculate_ear():
-    global left_ear, right_ear, min_ear
+    global left_ear, right_ear, avg_ear, min_ear
     left_ear = ear(left_eye_pts)
     right_ear = ear(right_eye_pts)
 
-    #avg_ear = (left_ear + right_ear) / 2.0
+    avg_ear = (left_ear + right_ear) / 2.0
     min_ear = min(left_ear, right_ear)
 
 def show_face(frame):

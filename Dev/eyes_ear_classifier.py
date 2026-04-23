@@ -7,7 +7,7 @@ import mediapipe as mp
 import settings
 import eyes_utils
 import eyes_actions
-import preprocess
+import warn
 
 
 mp_face_mesh = mp.solutions.face_mesh
@@ -31,14 +31,17 @@ with mp_face_mesh.FaceMesh(
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = face_mesh.process(rgb_frame)
 
+        eyes_utils.face = False
         if results.multi_face_landmarks:
+            eyes_utils.face = True
+
             for face_landmarks in results.multi_face_landmarks:
                 eyes_utils.update_eye_points(frame, face_landmarks)
 
                 # Show face bounding box
                 face_crop = eyes_utils.show_face(frame)
-                if face_crop is not None and not preprocess.is_useful(face_crop):
-                    continue
+                # if face_crop is not None and not preprocess.is_useful(face_crop):
+                #     continue
 
                 # Draw both eyes with classifier results
                 if settings.BATCHED_CLASSIFICATION:
@@ -61,7 +64,7 @@ with mp_face_mesh.FaceMesh(
             eyes_utils.print_verbose(f"Frame processing time: {end_time - start_time:.4f}s")
 
         eyes_actions.update()
-        eyes_actions.print_info()
+        warn.update()
 
 cap.release()
 cv2.destroyAllWindows()

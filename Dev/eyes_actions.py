@@ -1,6 +1,7 @@
 import eyes_utils
 import settings
 
+
 blinks_counter = 0
 
 left_eye_state = "unknown"
@@ -18,14 +19,12 @@ right_unsuccessful = 0
 # Distance between eyes
 eye_distance = 0.0
 
-# Vertical distance
-eye_vertical = 0.0
-
 # Squinting
 squinting = False
 
 # Screen distance
 screen_distance = 0.0
+
 
 def update_eyes_states():
     global left_unsuccessful, right_unsuccessful, left_eye_state, right_eye_state
@@ -81,26 +80,14 @@ def update_eye_distance():
 
     eye_distance = eyes_utils.euclidean(left_center, right_center)
 
-def update_eye_vertical():
-    global eye_vertical
-
-    if left_eye_state == "unknown" or right_eye_state == "unknown":
-        eye_vertical = 0.0
-        return
-
-    left_vertical = eyes_utils.get_vertical_distance(eyes_utils.left_eye_pts)
-    right_vertical = eyes_utils.get_vertical_distance(eyes_utils.right_eye_pts)
-
-    eye_vertical = (left_vertical + right_vertical) / 2.0
-
 def update_eye_squinting():
     global squinting
 
-    if eye_vertical == 0.0:
+    if left_eye_state == "unknown" or right_eye_state == "unknown":
         squinting = None
         return
 
-    squinting = (eye_distance / eye_vertical) > settings.SQUINTING_THRESHOLD
+    squinting = eyes_utils.avg_ear < settings.SQUINTING_THRESHOLD
 
 def update_screen_distance():
     global screen_distance
@@ -128,6 +115,6 @@ def update():
     update_total_state()
     update_blinks()
     update_eye_distance()
-    update_eye_vertical()
     update_eye_squinting()
     update_screen_distance()
+    print_info()

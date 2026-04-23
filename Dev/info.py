@@ -18,25 +18,30 @@
 
 # Explain that the eye_crop is cut from the original frame based on the eye landmarks and
 # is cut based on head rotation
-
+#
 # I first tried using EAR(Eye aspect ratio) based on facial landmarks but it was unreliable
 # because it couldnt detect occluded eyes and I could put an object in front of my eye
 # and it would still be detected as open/closed based on EAR
-
+#
 # Then I decided I should use a model that takes the eye crop as input and classifies it as open, 
 # closed or occluded(unknown).
-
+#
 # I made reliable blink detection by using this model and defining open eyes state as both eyes open,
 # and the same for closed eyes. If one of the eyes is unknown then eyes state is unknown.
 # If at least one of the eyes has an uncertain classification a counter is increased and
 # if the counter reaches a certain threshold the eye is considered unknown. 
 # This way I can ignore uncertain classifications.
 
-# I measured the distance between eye centres compared to eye vertical distance and found a
-# threshold for squ_val = eye_distance / eye_vertical that indicates squinting. This one will vary from person
-# to person, especially if you are asian. :):):)
 
-# So the appropriate threshold should be around 10
+# For squinting I calculate EAR with the formula (|p1 - p6| + |p3 - p5|) / 2 * |p1 - p4|
+# Which basically means - get average of 2 verticals and divide by horizontal.
+# I do this for both eyes and take average
+#
+# Borderline for me is around 0.25, below that I am squinting
+#
+# Research
+# https://www.mdpi.com/2079-9292/11/19/3183
+
 
 # I will use distance between eye centres (in pixels) compared to screen resolution to evaluate 
 # distance between user and screen.
@@ -50,3 +55,39 @@
 
 
 
+
+# Research links distance to screen, eye strain
+# 
+# https://www.zeiss.com/vision-care/en/eye-health-and-care/health-prevention/digital-eye-strain-how-different-screens-affect-different-people.html
+# https://www.aoa.org/healthy-eyes/eye-and-vision-conditions/computer-vision-syndrome
+# https://www.aao.org/eye-health/tips-prevention/computer-usage
+# https://pubmed.ncbi.nlm.nih.gov/27716998/
+# https://www.jstage.jst.go.jp/article/jpts/28/1/28_jpts-2015-817/_article
+# https://www.nature.com/articles/s41433-023-02781-9
+#
+#
+# Normal blinking distance > 35 cm to reduce eye strain
+# Give notifications if distance is less than 30 cm and warn if distance is less than 20 cm
+# 
+
+# Research links blinking and eye strain
+#
+# https://pmc.ncbi.nlm.nih.gov/articles/PMC9927758/
+#
+# Blink rate 7 or below blinks per minute is considered low and user should be notified to blink more often
+#
+
+# Squinting and eye strain
+# 
+# https://www.hra.nhs.uk/planning-and-improving-research/application-summaries/research-summaries/focusing-control-in-squint-and-eye-strain/
+# https://scienceinsights.org/how-does-squinting-help-you-see-better/
+# https://link.springer.com/article/10.1186/s12886-019-1297-5
+# https://pubmed.ncbi.nlm.nih.gov/14627939/
+#
+# If squinting is detected for more than 5 seconds continuously, user should be notified to 
+# relax their eyes, take a walk or sth
+#
+
+
+
+# Maybe add a feature that tracks if you watched the screen for more than 20 minutes without a break.
