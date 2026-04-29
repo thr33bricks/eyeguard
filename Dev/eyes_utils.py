@@ -8,7 +8,6 @@ import torch
 import torchvision.transforms as T
 transform = T.Compose([
     T.ToTensor(),
-    T.Resize((128, 128)),  # match training
     T.Normalize(mean=[0.485, 0.456, 0.406],
                 std=[0.229, 0.224, 0.225])
 ])
@@ -17,6 +16,11 @@ transform = T.Compose([
 LEARNER = load_learner('Dev/models/' + settings.EYE_MODEL_NAME)
 LEARNER.model.eval()
 LEARNER.model.cuda()
+LEARNER.model.half()
+
+# Precomputed normalization tensors directly on the GPU
+mean_tensor = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).cuda().half()
+std_tensor = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).cuda().half()
 
 # Landmark indices for MediaPipe Face Mesh
 RIGHT_EYE = [362, 385, 387, 263, 373, 380]
@@ -66,6 +70,9 @@ def calculate_ear():
     min_ear = min(left_ear, right_ear)
 
 def show_face(frame):
+    if not settings.SHOW_CAMERA_FEED:
+        return None
+    
     # Face bounding box
     x_coords = [p[0] for p in landmark_coords]
     y_coords = [p[1] for p in landmark_coords]
@@ -78,6 +85,7 @@ def show_face(frame):
         ratio = settings.FACE_HEIGHT / face_crop.shape[0]
         face_crop = cv2.resize(face_crop, None, fx=ratio, fy=ratio)
         cv2.imshow('Face', face_crop)
+
         return face_crop
     return None
 
@@ -171,50 +179,56 @@ def show_eyes_batched(frame):
 
 def show_eye_no_classify(string, eye_crop, label):
     # Open - green, Closed - red, Unknown - magenta, Uncertain - yellow
-        if label == "open":
-            color = (0, 255, 0) 
-        elif label == "closed":
-            color = (0, 0, 255) 
-        elif label == "unknown":
-            color = (255, 0, 255)
-        elif label == "uncertain": 
-            color = (0, 255, 255)
+    if not settings.SHOW_CAMERA_FEED:
+        return
+    
+    if label == "open":
+        color = (0, 255, 0) 
+    elif label == "closed":
+        color = (0, 0, 255) 
+    elif label == "unknown":
+        color = (255, 0, 255)
+    elif label == "uncertain": 
+        color = (0, 255, 255)
 
-        cv2.putText(eye_crop, label, (0, 12), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
-        cv2.imshow(string, eye_crop)
+    cv2.putText(eye_crop, label, (0, 12), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
+    cv2.imshow(string, eye_crop)
 
 def show_eye(frame, eye):
-        string, eye_crop, label, conf = crop_and_classify(frame, eye)
+    string, eye_crop, label, conf = crop_and_classify(frame, eye)
 
-        # Open - green, Closed - red, Unknown - magenta, Uncertain - yellow
-        if label == "open":
-            color = (0, 255, 0) 
-        elif label == "closed":
-            color = (0, 0, 255) 
-        elif label == "unknown":
-            color = (255, 0, 255)
-        elif label == "uncertain": 
-            color = (0, 255, 255)
+    if not settings.SHOW_CAMERA_FEED:
+        return
 
-        eye_crop_no_text = eye_crop.copy()
-        cv2.putText(eye_crop, label, (0, 12), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
-        cv2.imshow(string, eye_crop)
+    # Open - green, Closed - red, Unknown - magenta, Uncertain - yellow
+    if label == "open":
+        color = (0, 255, 0) 
+    elif label == "closed":
+        color = (0, 0, 255) 
+    elif label == "unknown":
+        color = (255, 0, 255)
+    elif label == "uncertain": 
+        color = (0, 255, 255)
 
-        # Save left or right eye
-        # key = cv2.waitKey(1) & 0xFF
-        # #if key == ord('s') and eye == "right":  # press 's' to save
-        # if key == ord('s') and eye == "left":  # press 's' to save
-        #     save_dir = "photos_eyes"
-        #     os.makedirs(save_dir, exist_ok=True)
+    eye_crop_no_text = eye_crop.copy()
+    cv2.putText(eye_crop, label, (0, 12), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
+    cv2.imshow(string, eye_crop)
 
-        #     filename = f"{eye}_{int(time.time())}.jpg"
-        #     filepath = os.path.join(save_dir, filename)
+    # Save left or right eye
+    # key = cv2.waitKey(1) & 0xFF
+    # #if key == ord('s') and eye == "right":  # press 's' to save
+    # if key == ord('s') and eye == "left":  # press 's' to save
+    #     save_dir = "photos_eyes"
+    #     os.makedirs(save_dir, exist_ok=True)
 
-        #     cv2.resize(frame, (90, 90), interpolation=cv2.INTER_AREA)
-        #     cv2.imwrite(filepath, eye_crop_no_text)
-        #     print(f"Saved: {filepath}")
+    #     filename = f"{eye}_{int(time.time())}.jpg"
+    #     filepath = os.path.join(save_dir, filename)
+
+    #     cv2.resize(frame, (90, 90), interpolation=cv2.INTER_AREA)
+    #     cv2.imwrite(filepath, eye_crop_no_text)
+    #     print(f"Saved: {filepath}")
 
 def classify_eye(eye_np_array):
     img_rgb = cv2.cvtColor(eye_np_array, cv2.COLOR_BGR2RGB)
@@ -230,8 +244,10 @@ def classify_eye(eye_np_array):
 
 def classify_eye_fast(eye_np_array):
     img = cv2.cvtColor(eye_np_array, cv2.COLOR_BGR2RGB)
-    # To tensor
-    tensor = transform(img).unsqueeze(0).cuda()  # shape: [1, C, H, W]
+
+    # Fast GPU Preprocessing
+    tensor = torch.from_numpy(img).permute(2, 0, 1).unsqueeze(0).cuda().half() / 255.0
+    tensor = (tensor - mean_tensor) / std_tensor
 
     with torch.no_grad():
         outputs = LEARNER.model(tensor)
@@ -254,11 +270,12 @@ def classify_eyes_batched(left_eye_np, right_eye_np):
     img_l = cv2.cvtColor(left_eye_np, cv2.COLOR_BGR2RGB)
     img_r = cv2.cvtColor(right_eye_np, cv2.COLOR_BGR2RGB)
 
-    # 2. Transform and stack into a single batch tensor
-    # transform(img) returns [C, H, W], so we stack them to get [2, C, H, W]
-    tensor_l = transform(img_l)
-    tensor_r = transform(img_r)
-    batch_tensor = torch.stack([tensor_l, tensor_r]).cuda()
+    # 2. Fast GPU Batch Preprocessing
+    batch_np = np.stack([img_l, img_r])
+    batch_tensor = torch.from_numpy(batch_np).permute(0, 3, 1, 2).cuda().half() / 255.0
+    
+    # Normalize directly on GPU
+    batch_tensor = (batch_tensor - mean_tensor) / std_tensor
 
     results = []
 
@@ -310,9 +327,11 @@ def update_eye_points(frame, face_landmarks):
     h, w, _ = frame.shape
 
     global landmark_coords, right_eye_pts, left_eye_pts
-    landmark_coords = [(int(p.x * w), int(p.y * h)) for p in face_landmarks.landmark]
-    right_eye_pts = [landmark_coords[i] for i in RIGHT_EYE]
-    left_eye_pts = [landmark_coords[i] for i in LEFT_EYE]
+    #landmark_coords = [(int(p.x * w), int(p.y * h)) for p in face_landmarks.landmark]
+    right_eye_pts = [(int(face_landmarks.landmark[i].x * w), 
+                      int(face_landmarks.landmark[i].y * h)) for i in RIGHT_EYE]
+    left_eye_pts = [(int(face_landmarks.landmark[i].x * w), 
+                     int(face_landmarks.landmark[i].y * h)) for i in LEFT_EYE]
 
 def resize_for_video(frame):
     h, w = frame.shape[:2]

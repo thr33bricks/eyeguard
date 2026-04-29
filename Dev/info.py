@@ -91,3 +91,11 @@
 
 
 # Maybe add a feature that tracks if you watched the screen for more than 20 minutes without a break.
+
+
+
+
+# Projects to check if better than mine
+# https://github.com/codedByCan/Eye_Blink_Detection
+# https://github.com/Pushtogithub23/Eye-Blink-Detection-using-MediaPipe-and-OpenCV
+# https://github.com/Shakirsadiq6/Blink_Detection_Python
