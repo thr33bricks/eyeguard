@@ -98,4 +98,6 @@
 # Projects to check if better than mine
 # https://github.com/codedByCan/Eye_Blink_Detection
 # https://github.com/Pushtogithub23/Eye-Blink-Detection-using-MediaPipe-and-OpenCV
+# https://github.com/matt-serrano/jackpot-focus-detector
 # https://github.com/Shakirsadiq6/Blink_Detection_Python
+# https://github.com/R4j4n/Eye-Gaze_and_Blink-detection-using-Neural-Network

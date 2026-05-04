@@ -3,10 +3,10 @@ PRINT_EYEGUARD_WARN = True
 PRINT_VERBOSE = True
 PRINT_FRAME_TIME = False
 PRINT_CLASSIFIER_RESULTS = False
-PRINT_EYE_ACTION_INFO = True
+PRINT_EYE_ACTION_INFO = False
 PRINT_FRAME_VARIANCE = False
-PRINT_AVERAGES = False
-SHOW_CAMERA_FEED = True
+PRINT_AVERAGES = True
+SHOW_CAMERA_FEED = False
 
 
 
@@ -76,8 +76,11 @@ SECONDS = 60
 WARN_BLINKS_THRESHOLD = 7
 
 # User to screen distance (cm)
-WARN_SCREEN_THRESHOLD = 30
+WARN_SCREEN_THRESHOLD = 55
 
 # The threshold (0-1) that indicates what part of the seconds in the
 # moving window are squinting
-WARN_SQUINTING_THRESHOLD = 0.8
+WARN_SQUINTING_THRESHOLD = 0.7
+
+# Notifications cooldown (in seconds) to avoid spamming the OS
+NOTIFICATION_COOLDOWN = 60
