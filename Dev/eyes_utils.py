@@ -12,15 +12,25 @@ transform = T.Compose([
                 std=[0.229, 0.224, 0.225])
 ])
 
+if torch.cuda.is_available():
+    DEVICE = torch.device('cuda')
+    USE_HALF = True
+else:
+    DEVICE = torch.device('cpu')
+    USE_HALF = False
 
 LEARNER = load_learner('Dev/models/' + settings.EYE_MODEL_NAME)
 LEARNER.model.eval()
-LEARNER.model.cuda()
-LEARNER.model.half()
+LEARNER.model.to(DEVICE)
+if USE_HALF:
+    LEARNER.model.half()
 
-# Precomputed normalization tensors directly on the GPU
-mean_tensor = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).cuda().half()
-std_tensor = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).cuda().half()
+# Precomputed normalization tensors directly on the selected device
+mean_tensor = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).to(DEVICE)
+std_tensor = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).to(DEVICE)
+if USE_HALF:
+    mean_tensor = mean_tensor.half()
+    std_tensor = std_tensor.half()
 
 # Landmark indices for MediaPipe Face Mesh
 RIGHT_EYE = [362, 385, 387, 263, 373, 380]
@@ -245,8 +255,11 @@ def classify_eye(eye_np_array):
 def classify_eye_fast(eye_np_array):
     img = cv2.cvtColor(eye_np_array, cv2.COLOR_BGR2RGB)
 
-    # Fast GPU Preprocessing
-    tensor = torch.from_numpy(img).permute(2, 0, 1).unsqueeze(0).cuda().half() / 255.0
+    # Fast Preprocessing
+    tensor = torch.from_numpy(img).permute(2, 0, 1).unsqueeze(0).to(DEVICE)
+    if USE_HALF:
+        tensor = tensor.half()
+    tensor = tensor / 255.0
     tensor = (tensor - mean_tensor) / std_tensor
 
     with torch.no_grad():
@@ -270,11 +283,14 @@ def classify_eyes_batched(left_eye_np, right_eye_np):
     img_l = cv2.cvtColor(left_eye_np, cv2.COLOR_BGR2RGB)
     img_r = cv2.cvtColor(right_eye_np, cv2.COLOR_BGR2RGB)
 
-    # 2. Fast GPU Batch Preprocessing
+    # 2. Fast Batch Preprocessing
     batch_np = np.stack([img_l, img_r])
-    batch_tensor = torch.from_numpy(batch_np).permute(0, 3, 1, 2).cuda().half() / 255.0
+    batch_tensor = torch.from_numpy(batch_np).permute(0, 3, 1, 2).to(DEVICE)
+    if USE_HALF:
+        batch_tensor = batch_tensor.half()
+    batch_tensor = batch_tensor / 255.0
     
-    # Normalize directly on GPU
+    # Normalize directly on Device
     batch_tensor = (batch_tensor - mean_tensor) / std_tensor
 
     results = []

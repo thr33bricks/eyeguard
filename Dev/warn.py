@@ -114,6 +114,7 @@ def calculate_averages():
 
     # Not enough valid data
     if valid_seconds / total_seconds < settings.MOVING_WINDOW_VALIDITY_THRES:
+        valid_data = False
         return
     
     valid_data = True
