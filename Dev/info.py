@@ -68,6 +68,7 @@
 #
 # Normal blinking distance > 35 cm to reduce eye strain
 # Give notifications if distance is less than 30 cm and warn if distance is less than 20 cm
+# for a phone screen - 30, laptop/PC screen - 60
 # 
 
 # Research links blinking and eye strain
@@ -84,7 +85,7 @@
 # https://link.springer.com/article/10.1186/s12886-019-1297-5
 # https://pubmed.ncbi.nlm.nih.gov/14627939/
 #
-# If squinting is detected for more than 5 seconds continuously, user should be notified to 
+# If squinting rate is over 0.7 in the moving window, user should be notified to 
 # relax their eyes, take a walk or sth
 #
 
@@ -101,3 +102,8 @@
 # https://github.com/matt-serrano/jackpot-focus-detector
 # https://github.com/Shakirsadiq6/Blink_Detection_Python
 # https://github.com/R4j4n/Eye-Gaze_and_Blink-detection-using-Neural-Network
+
+
+
+# Added a GUI, settings - FPS limiter and screen distance calibration sliders
+# I have to make autostart and support both debian and windows, also make a 1-file executable

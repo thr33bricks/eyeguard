@@ -13,6 +13,7 @@ import eyes_actions
 import frame_limiter
 import warn
 
+
 # Suppress MediaPipe protobuf deprecation warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
