@@ -4,6 +4,8 @@ import time
 import numpy as np
 import mediapipe as mp
 import warnings
+import json
+import os
 
 import settings
 import eyes_utils
@@ -14,14 +16,43 @@ import warn
 # Suppress MediaPipe protobuf deprecation warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
+SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "user_settings.json")
+
+def load_user_settings():
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r") as f:
+                data = json.load(f)
+                if "MAX_FPS" in data:
+                    settings.MAX_FPS = data["MAX_FPS"]
+                    frame_limiter.frame_time = 1.0 / settings.MAX_FPS
+                if "SCREEN_DISTANCE_CALIBRATION" in data:
+                    settings.SCREEN_DISTANCE_CALIBRATION = data["SCREEN_DISTANCE_CALIBRATION"]
+        except Exception as e:
+            print(f"Error loading settings: {e}")
+
+def save_user_settings():
+    data = {
+        "MAX_FPS": settings.MAX_FPS,
+        "SCREEN_DISTANCE_CALIBRATION": settings.SCREEN_DISTANCE_CALIBRATION
+    }
+    try:
+        with open(SETTINGS_FILE, "w") as f:
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        print(f"Error saving settings: {e}")
+
 def set_fps(sender, app_data, user_data):
     settings.MAX_FPS = app_data
     frame_limiter.frame_time = 1.0 / app_data
+    save_user_settings()
 
 def set_calib(sender, app_data, user_data):
     settings.SCREEN_DISTANCE_CALIBRATION = app_data
+    save_user_settings()
 
 def main():
+    load_user_settings()
     dpg.create_context()
     
     # Initialize camera and read the first frame to get the correct dimensions for DPG texture
@@ -73,17 +104,17 @@ def main():
                 dpg.add_text("Screen Dist Calibration (cm)")
                 dpg.add_slider_float(label="", 
                                      default_value=settings.SCREEN_DISTANCE_CALIBRATION, 
-                                     min_value=-10.0, max_value=10.0, callback=set_calib, width=-1)
+                                     min_value=-30.0, max_value=30.0, callback=set_calib, width=-1)
 
     dpg.create_viewport(title='EyeGuard AI Eye protection - Dashboard', width=1050, height=540)
     dpg.setup_dearpygui()
     dpg.set_global_font_scale(1.2)
     dpg.show_viewport()
     dpg.set_primary_window("Primary Window", True)
-    
+
     settings.SHOW_CAMERA_FEED = False
     warn.init()
-    
+
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(
         max_num_faces=1,
@@ -91,10 +122,10 @@ def main():
         min_detection_confidence=0.6,
         min_tracking_confidence=0.6
     )
-    
+
     frame_count = 0
     fps = 0
-    
+
     while dpg.is_dearpygui_running():
         start_time = time.perf_counter()
         

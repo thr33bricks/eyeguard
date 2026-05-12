@@ -1,5 +1,6 @@
 # Project-specific ignores
 video/
+user_settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
