@@ -6,7 +6,9 @@ import mediapipe as mp
 import warnings
 import json
 import os
+import sys
 
+import startup
 import settings
 import eyes_utils
 import eyes_actions
@@ -17,7 +19,18 @@ import warn
 # Suppress MediaPipe protobuf deprecation warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
-SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "user_settings.json")
+def get_base_dir():
+    """ Returns the path to the folder containing the .exe (or the .py script) """
+    if hasattr(sys, '_MEIPASS'):
+        # If running as EXE, we want the folder the EXE is in
+        # sys.executable is the full path to the .exe file
+        return os.path.dirname(os.path.abspath(sys.executable))
+    
+    # If running as a script, use the normal __file__ logic
+    return os.path.dirname(os.path.abspath(__file__))
+
+BASE_DIR = get_base_dir()
+SETTINGS_FILE = os.path.join(BASE_DIR, "user_settings.json")
 
 def load_user_settings():
     if os.path.exists(SETTINGS_FILE):
@@ -52,26 +65,32 @@ def set_calib(sender, app_data, user_data):
     settings.SCREEN_DISTANCE_CALIBRATION = app_data
     save_user_settings()
 
+def toggle_autostart(sender, app_data, user_data):
+    if app_data:
+        startup.enable_autostart()
+    else:
+        startup.disable_autostart()
+
 def main():
     load_user_settings()
     dpg.create_context()
-    
+
     # Initialize camera and read the first frame to get the correct dimensions for DPG texture
     cap = eyes_utils.init_cap()
     success, frame = cap.read()
     if not success:
         print("Failed to read from video source.")
         return
-        
+
     if not settings.USE_WEBCAM:
         frame = eyes_utils.resize_for_video(frame)
-        
+
     h, w, _ = frame.shape
-    
+
     with dpg.texture_registry(show=False):
         default_data = np.zeros((w * h * 4,), dtype=np.float32)
         dpg.add_dynamic_texture(width=w, height=h, default_value=default_data, tag="video_texture")
-        
+
     with dpg.window(tag="Primary Window"):
         with dpg.group(horizontal=True):
             # Video Group
@@ -106,6 +125,12 @@ def main():
                 dpg.add_slider_float(label="", 
                                      default_value=settings.SCREEN_DISTANCE_CALIBRATION, 
                                      min_value=-30.0, max_value=30.0, callback=set_calib, width=-1)
+                
+                dpg.add_checkbox(
+                    label="Launch on startup",
+                    default_value=startup.is_autostart_enabled(),
+                    callback=toggle_autostart
+                )
 
     dpg.create_viewport(title='EyeGuard AI Eye protection - Dashboard', width=1050, height=540)
     dpg.setup_dearpygui()

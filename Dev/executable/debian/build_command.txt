@@ -1,0 +1,1 @@
+python -m PyInstaller --onedir --add-data "$(pwd)/models/eyes_model_1.5_mobilenetv3_small.pkl:Dev/models" --collect-all mediapipe --hidden-import plyer.platforms.linux.notification --hidden-import plyer.platforms.win.notification --hidden-import plyer.platforms.macosx.notification gui_main.py

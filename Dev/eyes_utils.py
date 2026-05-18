@@ -1,3 +1,5 @@
+import os
+import sys
 import cv2
 import time
 import settings
@@ -19,7 +21,17 @@ else:
     DEVICE = torch.device('cpu')
     USE_HALF = False
 
-LEARNER = load_learner('Dev/models/' + settings.EYE_MODEL_NAME)
+print(f"Internal Path (sys._MEIPASS): {getattr(sys, '_MEIPASS', 'Not in EXE')}")
+def get_model_path(relative_path):
+    """ Get the absolute path to the model file """
+    if hasattr(sys, '_MEIPASS'):
+        # This is where PyInstaller unzips files
+        return os.path.join(sys._MEIPASS, relative_path)
+    # This is where the file is during development
+    return os.path.abspath(relative_path)
+
+model_path = get_model_path('Dev/models/' + settings.EYE_MODEL_NAME)
+LEARNER = load_learner(model_path)
 LEARNER.model.eval()
 LEARNER.model.to(DEVICE)
 if USE_HALF:
