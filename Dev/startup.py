@@ -1,5 +1,7 @@
 import os
 import sys
+import stat
+
 import platform
 from pathlib import Path
 
@@ -166,3 +168,37 @@ def is_autostart_enabled():
         return is_autostart_enabled_linux()
 
     return False
+
+def install_linux_desktop_file(base_dir):
+    if sys.platform != "linux":
+        return
+
+    desktop_dir = os.path.expanduser("~/.local/share/applications")
+    os.makedirs(desktop_dir, exist_ok=True)
+
+    # Path to executable or script
+    executable_path = os.path.abspath(sys.executable)
+
+    # Your icon path
+    icon_path = os.path.join(base_dir, "eyeguard_icon.png")
+
+    desktop_file_path = os.path.join(desktop_dir, "eyeguard.desktop")
+
+    desktop_contents = f"""[Desktop Entry]
+                        Version=1.0
+                        Type=Application
+                        Name=EyeGuard
+                        Comment=AI Eye Protection Dashboard
+                        Exec="{executable_path}"
+                        Icon={icon_path}
+                        Terminal=false
+                        Categories=Utility;
+                        StartupWMClass=EyeGuard
+                        """
+
+    with open(desktop_file_path, "w") as f:
+        f.write(desktop_contents)
+
+    # Make executable
+    st = os.stat(desktop_file_path)
+    os.chmod(desktop_file_path, st.st_mode | stat.S_IEXEC)

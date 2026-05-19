@@ -72,7 +72,16 @@ def toggle_autostart(sender, app_data, user_data):
         startup.disable_autostart()
 
 def main():
+    # Tell Windows to fix Windows Taskbar icon
+    if sys.platform == "win32":
+        import ctypes
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("EyeGuard.AIProtection.1.0")
+        except Exception:
+            pass
+    
     load_user_settings()
+    startup.install_linux_desktop_file(BASE_DIR)
     dpg.create_context()
 
     # Initialize camera and read the first frame to get the correct dimensions for DPG texture
@@ -133,6 +142,12 @@ def main():
                 )
 
     dpg.create_viewport(title='EyeGuard AI Eye protection - Dashboard', width=1050, height=540)
+    
+    icon_path = os.path.join(BASE_DIR, "eyeguard_icon.png")
+    if os.path.exists(icon_path):
+        dpg.set_viewport_small_icon(icon_path)
+        dpg.set_viewport_large_icon(icon_path)
+    
     dpg.setup_dearpygui()
     dpg.set_global_font_scale(1.2)
     dpg.show_viewport()
