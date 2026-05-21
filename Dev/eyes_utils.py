@@ -5,6 +5,8 @@ import time
 import settings
 from fastai.vision.all import *
 import timm
+import pathlib
+
 
 import torch
 import torchvision.transforms as T
@@ -20,6 +22,9 @@ if torch.cuda.is_available():
 else:
     DEVICE = torch.device('cpu')
     USE_HALF = False
+
+if platform.system() == "Windows":
+    pathlib.PosixPath = pathlib.WindowsPath
 
 print(f"Internal Path (sys._MEIPASS): {getattr(sys, '_MEIPASS', 'Not in EXE')}")
 def get_model_path(relative_path):
