@@ -126,8 +126,6 @@ def camera_worker_thread(cap, h, w):
     frame_skip_counter = 0
     process_every_n_frames = 2
 
-    last_processed_frame = None
-
     while app_running:
         start_time = time.perf_counter()
         
@@ -145,12 +143,12 @@ def camera_worker_thread(cap, h, w):
         frame_count += 1
         frame_skip_counter += 1
         
+        # 1. Process face mesh at the specified interval
         if frame_skip_counter % process_every_n_frames == 0:
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = face_mesh.process(rgb_frame)
             frame_skip_counter = 0
             
-            eyes_utils.face = False
             if results.multi_face_landmarks:
                 eyes_utils.face = True
                 for face_landmarks in results.multi_face_landmarks:
@@ -165,16 +163,20 @@ def camera_worker_thread(cap, h, w):
                         frame_count = 0
                         
                     eyes_utils.calculate_ear()
-                    eyes_utils.draw_ui_main_frame(frame)
-            
-            last_processed_frame = frame.copy()
+                    eyes_utils.draw_ui_main_frame(frame) # Draws UI overlays on the face
+            else:
+                eyes_utils.face = False
         else:
-            if last_processed_frame is not None:
+            # If skipping processing this frame, maintain the overlay if a face was last seen
+            if eyes_utils.face:
                 eyes_utils.draw_ui_main_frame(frame)
         
+        # 2. Update status and warning states
         eyes_actions.update()
         warn.update()
         
+        # 3. CRITICAL FIX: Convert and push the texture EVERY frame
+        # This keeps the video stream buttery smooth even when no face is present
         rgba_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
         texture_data = rgba_frame.ravel().astype(np.float32) / 255.0
         
