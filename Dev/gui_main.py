@@ -217,7 +217,7 @@ def main():
     
     if sys.platform == "win32":
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("EyeGuard.AIProtection.1.2-Threaded")
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("EyeGuard.AIProtection.1.0")
         except Exception:
             pass
     
