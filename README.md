@@ -56,7 +56,7 @@ EyeGuard AI uses a custom-trained eye detection model (found in [`Eyes_model/`](
 Webcam Feed
     └── Face & Eye Detection  (Eyes_model)
             ├── Proximity      → face size / landmark span → estimated distance
-            ├── Blink Rate     → eye aspect ratio (EAR) over a rolling time window
+            ├── Blink Rate     → eye aspect ratio + eye classification ML model over a rolling time window
             └── Squint Level   → vertical eyelid aperture ratio
                     └── Threshold crossed? → Native OS Notification
 ```
