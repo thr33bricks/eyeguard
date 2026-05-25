@@ -57,7 +57,7 @@ Webcam Feed
     └── Face & Eye Detection  (Eyes_model)
             ├── Proximity      → face size / landmark span → estimated distance
             ├── Blink Rate     → eye aspect ratio + eye classification ML model over a rolling time window
-            └── Squint Level   → vertical eyelid aperture ratio
+            └── Squint Level   → based on average EAR
                     └── Threshold crossed? → Native OS Notification
 ```
 
@@ -100,11 +100,7 @@ python3 main.py
 
 ### NVIDIA GPU Acceleration (Optional)
 
-If you have a CUDA-capable NVIDIA GPU, make sure you have the matching CUDA toolkit installed, then install the GPU requirements:
-
-```bash
-pip install -r requirements-cuda.txt
-```
+If you have a CUDA-capable NVIDIA GPU, make sure you have the matching CUDA toolkit installed.
 
 EyeGuard AI will automatically detect and use your GPU — no extra configuration needed.
 
