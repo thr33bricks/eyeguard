@@ -43,6 +43,7 @@ BASE_DIR = get_base_dir()
 SETTINGS_FILE = os.path.join(BASE_DIR, "user_settings.json")
 
 # Global lifecycle flag for our background thread
+failure_count = 0
 app_running = True
 tray_icon = None
 
@@ -110,6 +111,46 @@ def quit_window(icon, item):
     if dpg.is_dearpygui_running():
         dpg.stop_dearpygui()
 
+def reopen_camera(cap):
+    try:
+        cap.release()
+    except Exception:
+        pass
+
+    time.sleep(1.0)
+
+    # Reinitialize webcam
+    new_cap = eyes_utils.init_cap()
+
+    # Give Windows camera stack time to wake up
+    time.sleep(1.0)
+
+    return new_cap
+
+def fix_camera_if_dead(cap, success, frame):
+    global failure_count
+    bad_frame = (
+        not success or
+        frame is None or
+        frame.size == 0
+    )
+
+    if bad_frame:
+        failure_count += 1
+    else:
+        failure_count = 0
+
+    # If camera died after sleep/hibernate
+    if failure_count >= 10:
+        print("Camera connection lost. Reopening webcam...")
+
+        cap = reopen_camera(cap)
+
+        failure_count = 0
+        time.sleep(2.0)
+        return cap
+    return cap
+
 def camera_worker_thread(cap, h, w):
     global app_running
     
@@ -128,8 +169,10 @@ def camera_worker_thread(cap, h, w):
 
     while app_running:
         start_time = time.perf_counter()
-        
+
         success, frame = cap.read()
+        cap = fix_camera_if_dead(cap, success, frame)
+
         if not success:
             if not settings.USE_WEBCAM:
                 break
@@ -217,7 +260,7 @@ def main():
     
     if sys.platform == "win32":
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("EyeGuard.AIProtection.1.0")
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("EyeGuard.AIProtection.1.1")
         except Exception:
             pass
     
