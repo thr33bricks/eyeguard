@@ -116,7 +116,7 @@ EyeGuard AI will automatically detect and use your GPU — no extra configuratio
 eyeguard/
 ├── Dev/              # Main application — entry point, notifications, app loop
 ├── Eyes_model/       # Custom-trained eye detection model and inference code
-├── Calculations/     # EAR, distance, squint ratio calculations
+├── Calculations/     # Maths
 ├── LICENSE           # GPL-3.0
 └── README.md
 ```
