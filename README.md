@@ -39,8 +39,8 @@ When any threshold is crossed, you get a native OS notification — no pop-ups s
 
 Head to the [**Releases**](https://github.com/thr33bricks/eyeguard/releases) page to grab the latest build.
 
-| Platform | Status | Download |
-|----------|--------|----------|
+| Platform | Download |
+|----------|----------|
 | Windows 10 / 11 | [EyeGuard v1.1 (.exe)](https://github.com/thr33bricks/eyeguard/releases/download/v1.1/EyeGuard_AI_Eye_Protection_v1.1.exe) |
 | Debian / Ubuntu Linux | [EyeGuard v1.1 (.tar.xz)](https://files.yourdan.uk/share/y7bqPLY0) |
 
