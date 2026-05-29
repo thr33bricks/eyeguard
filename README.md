@@ -7,11 +7,11 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Debian%20Linux-0078D4)
 ![GPU](https://img.shields.io/badge/GPU-NVIDIA%20%7C%20Integrated-76B900)
 ![License](https://img.shields.io/badge/License-GPL--3.0-blue)
-![Release](https://img.shields.io/badge/Release-v1.0-brightgreen)
+![Release](https://img.shields.io/badge/Release-v1.1-brightgreen)
 
 *Monitors your eyes in real time and sends native desktop notifications before strain sets in.*
 
-[Download v1.0](#download) · [How It Works](#how-it-works) · [Installation](#installation) · [Contributing](#contributing)
+[Download v1.1](#download) · [How It Works](#how-it-works) · [Installation](#installation) · [Contributing](#contributing)
 
 </div>
 
@@ -41,10 +41,10 @@ Head to the [**Releases**](https://github.com/thr33bricks/eyeguard/releases) pag
 
 | Platform | Status | Download |
 |----------|--------|----------|
-| Windows 10 / 11 | ✅ Available | [EyeGuard v1.0 (.exe)](https://github.com/thr33bricks/eyeguard/releases/tag/v1.0) |
-| Debian / Ubuntu Linux | 🔜 Coming Soon | — |
+| Windows 10 / 11 | [EyeGuard v1.1 (.exe)](https://github.com/thr33bricks/eyeguard/releases/download/v1.1/EyeGuard_AI_Eye_Protection_v1.1.exe) |
+| Debian / Ubuntu Linux | [EyeGuard v1.1 (.tar.xz)](https://files.yourdan.uk/share/y7bqPLY0) |
 
-> The Windows executable is standalone — no Python install required.
+> The executables are standalone — no Python install required.
 
 ---
 
