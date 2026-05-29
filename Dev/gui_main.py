@@ -322,8 +322,9 @@ def main():
                     callback=toggle_autostart
                 )
                 
-                dpg.add_spacing(count=2)
-                dpg.add_button(label="Hide to Tray", callback=lambda: window.hide(), width=-1)
+                if sys.platform == "win32":
+                    dpg.add_spacing(count=2)
+                    dpg.add_button(label="Hide to Tray", callback=lambda: window.hide(), width=-1)
 
     dpg.create_viewport(title='EyeGuard AI Eye protection - Dashboard', width=1050, height=540, vsync=True)
     
@@ -339,13 +340,14 @@ def main():
     else:
         icon_image = Image.new('RGB', (64, 64), color=(30, 30, 30))
 
-    tray_menu = pystray.Menu(
-        pystray.MenuItem("Show", window.show, default=True),
-        pystray.MenuItem("Hide", window.hide),
-        pystray.MenuItem("Quit", quit_window)
-    )
-    tray_icon = pystray.Icon("EyeGuard", icon_image, "EyeGuard AI", tray_menu)
-    tray_icon.run_detached()
+    if sys.platform == "win32":
+        tray_menu = pystray.Menu(
+            pystray.MenuItem("Show", window.show, default=True),
+            pystray.MenuItem("Hide", window.hide),
+            pystray.MenuItem("Quit", quit_window)
+        )
+        tray_icon = pystray.Icon("EyeGuard", icon_image, "EyeGuard AI", tray_menu)
+        tray_icon.run_detached()
 
     dpg.setup_dearpygui()
     dpg.set_global_font_scale(1.2)
