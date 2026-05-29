@@ -84,7 +84,7 @@ git clone https://github.com/thr33bricks/eyeguard.git
 cd eyeguard/Dev
 
 pip install -r requirements.txt
-python main.py
+python gui_main.py
 ```
 
 ### Debian / Ubuntu Linux
@@ -93,9 +93,9 @@ python main.py
 git clone https://github.com/thr33bricks/eyeguard.git
 cd eyeguard/Dev
 
-sudo apt update && sudo apt install python3-pip libnotify-bin -y
-pip3 install -r requirements.txt
-python3 main.py
+sudo apt update && sudo apt install libnotify-bin -y
+pip install -r requirements.txt
+python gui_main.py
 ```
 
 ### NVIDIA GPU Acceleration (Optional)
