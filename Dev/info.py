@@ -58,6 +58,7 @@
 
 # Research links distance to screen, eye strain
 # 
+# https://pmc.ncbi.nlm.nih.gov/articles/PMC9434525/
 # https://www.zeiss.com/vision-care/en/eye-health-and-care/health-prevention/digital-eye-strain-how-different-screens-affect-different-people.html
 # https://www.aoa.org/healthy-eyes/eye-and-vision-conditions/computer-vision-syndrome
 # https://www.aao.org/eye-health/tips-prevention/computer-usage
