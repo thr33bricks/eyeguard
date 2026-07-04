@@ -1,6 +1,6 @@
 <div align="center">
 
-# 👁️ EyeGuard AI
+# 👁️ EyeGuard AI Eye Protection
 ### Real-time AI Eye Protection for Your Desktop
 
 ![Python](https://img.shields.io/badge/Python-100%25-3776AB?logo=python&logoColor=white)
