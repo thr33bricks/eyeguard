@@ -69,6 +69,9 @@ GPU acceleration is handled automatically:
 
 ---
 
+### Screenshot
+![Screenshot](Pics/EyeGuard_Screenshot_1.png)
+
 ## Installation (Run from Source)
 
 ### Prerequisites
