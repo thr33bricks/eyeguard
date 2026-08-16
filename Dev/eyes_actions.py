@@ -105,10 +105,12 @@ def update_screen_distance():
         screen_distance = 0.0
         return
 
-    if norm_eye_distance < 20:
-        screen_distance = norm_eye_distance / -5 + 300 + settings.SCREEN_DISTANCE_CALIBRATION
-    else:
-        screen_distance = 4000 / (norm_eye_distance - 2) + settings.SCREEN_DISTANCE_CALIBRATION
+    # Currently removed as it needs two calibration parameters for the two formulas.
+    # Also taking into account precision below 20 cm distance is impractical.
+    # if norm_eye_distance > 200:
+    #     screen_distance = (norm_eye_distance - 300) / -5 + settings.SCREEN_DISTANCE_CALIBRATION
+    # else:
+    screen_distance = 4000 / (norm_eye_distance - 2) + settings.SCREEN_DISTANCE_CALIBRATION
 
 def print_info():
      if settings.PRINT_EYE_ACTION_INFO:
